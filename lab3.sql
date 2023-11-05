@@ -1,4 +1,4 @@
-/*Exercise 1*/
+ /*Exercise 1*/
 
 -- 1. między 12 i 20 listopada 2013,
 
@@ -194,3 +194,135 @@ WHERE
 	nazwa ~ '^\w+$'
 
 /*Exercise 3*/
+
+--1. wyświetla unikalne nazwy miast, z których pochodzą klienci cukierni i które składają się z więcej niż jednego słowa,
+
+SELECT DISTINCT 
+	miejscowosc
+FROM 
+	klienci
+WHERE 
+	miejscowosc LIKE '% %'
+
+-- 2. wyświetla nazwy i numery telefonów klientów, którzy podali numer stacjonarny telefonu (np. 012 222 22 00),
+
+SELECT 
+	nazwa, telefon
+FROM
+	klienci
+WHERE	
+	telefon LIKE '___ ___ __ __'
+
+--OR
+
+SELECT 
+	nazwa, telefon
+FROM 
+	klienci
+WHERE 
+	telefon ~ '^[0-9]{3} [0-9]{3} [0-9]{2} [0-9]{2}$'
+
+--3.★ wyświetla nazwy i numery telefonów klientów, którzy podali numer komórkowy telefonu,
+
+SELECT
+	nazwa, telefon 
+FROM
+	klienci
+WHERE
+	telefon LIKE '___ ___ ___'
+	
+-- OR
+
+SELECT
+	nazwa, telefon 
+FROM
+	klienci
+WHERE
+	telefon ~'^[0-9]{3} [0-9]{3} [0-9]{3}'
+
+/* Exercise 4 */
+
+-- 1. masa mieści się w przedziale od 15 do 24 g lub koszt produkcji mieści się w przedziale od 15 do 24 gr,
+
+(SELECT 
+	idczekoladki, nazwa, masa, koszt
+From 
+	czekoladki
+WHERE 
+	masa BETWEEN 15 AND 24 )
+UNION
+(SELECT 
+	idczekoladki, nazwa, masa, koszt
+From 
+	czekoladki
+WHERE 
+	koszt*100 BETWEEN 15 AND 24)
+
+-- 2. masa mieści się w przedziale od 25 do 35 g, ale koszt produkcji nie mieści się w przedziale od 25 do 35 gr,
+
+(SELECT 
+	idczekoladki, nazwa, masa, koszt
+From 
+	czekoladki
+WHERE 
+	masa BETWEEN 25 AND 35 )
+INTERSECT
+(SELECT 
+	idczekoladki, nazwa, masa, koszt
+From 
+	czekoladki
+WHERE 
+	koszt*100 NOT BETWEEN 25 AND 35)
+
+-- 3. [masa mieści się w przedziale od 15 do 24 g i koszt produkcji mieści się w przedziale od 15 do 24 gr] lub [masa mieści się w przedziale od 25 do 35 g i koszt produkcji mieści się w przedziale od 25 do 35 gr],
+
+(
+    (SELECT idczekoladki, nazwa, masa, koszt
+    FROM czekoladki
+    WHERE masa BETWEEN 15 AND 24)
+    INTERSECT
+    (SELECT idczekoladki, nazwa, masa, koszt
+    FROM czekoladki
+    WHERE koszt BETWEEN 0.15 AND 0.24)
+)
+UNION
+(
+    (SELECT idczekoladki, nazwa, masa, koszt
+    FROM czekoladki
+    WHERE masa BETWEEN 25 AND 35)
+    INTERSECT
+    (SELECT idczekoladki, nazwa, masa, koszt
+    FROM czekoladki
+    WHERE koszt BETWEEN 0.25 AND 0.35)
+)
+
+
+-- 4. ★ masa mieści się w przedziale od 15 do 24 g i koszt produkcji mieści się w przedziale od 15 do 24 gr,
+
+(SELECT idczekoladki, nazwa, masa, koszt
+FROM czekoladki
+WHERE masa BETWEEN 15 AND 24)
+INTERSECT
+(SELECT idczekoladki, nazwa, masa, koszt
+FROM czekoladki
+WHERE koszt BETWEEN 0.15 AND 0.24)
+
+-- 6. ★ masa mieści się w przedziale od 25 do 35 g, ale koszt produkcji nie mieści się ani w przedziale od 15 do 24 gr, ani w przedziale od 29 do 35 gr.
+
+(SELECT
+	idczekoladki, nazwa, masa, koszt
+FROM
+	czekoladki
+WHERE
+	masa BETWEEN 25 AND 35)
+INTERSECT
+(SELECT idczekoladki, nazwa, masa, koszt
+FROM czekoladki
+WHERE 
+	koszt NOT BETWEEN 0.15 AND 0.24)
+INTERSECT
+(SELECT idczekoladki, nazwa, masa, koszt
+FROM czekoladki
+WHERE 
+	koszt NOT BETWEEN 0.29 AND 0.35)
+
