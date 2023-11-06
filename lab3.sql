@@ -326,3 +326,40 @@ FROM czekoladki
 WHERE 
 	koszt NOT BETWEEN 0.29 AND 0.35)
 
+/* Exercise 5 */
+
+-- 1. identyfikatory klientów, którzy nigdy nie złożyli żadnego zamówienia,
+
+(SELECT idklienta
+FROM klienci )
+EXCEPT
+(SELECT idklienta
+FROM zamowienia
+)
+
+-- 2. identyfikatory pudełek, które nigdy nie zostały zamówione,
+
+(SELECT idpudelka
+FROM pudelka )
+EXCEPT
+(SELECT idpudelka
+FROM artykuly
+)
+
+-- 3. ★ nazwy klientów, czekoladek i pudełek, które zawierają rz (lub Rz),
+
+SELECT * FROM
+(
+	SELECT nazwa FROM klienci 
+	UNION 
+	SELECT nazwa FROM pudelka
+	UNION
+	SELECT nazwa FROM czekoladki
+)
+WHERE nazwa LIKE '%rz%' OR nazwa LIKE '%Rz%'
+
+-- 4. ★ identyfikatory czekoladek, które nie występują w żadnym pudełku.
+
+(SELECT idczekoladki FROM czekoladki)
+EXCEPT 
+(SELECT idczekoladki FROM zawartosc)
