@@ -376,8 +376,73 @@ FROM siatkowka.statystyki
 
 -- 2. identyfikator meczu, sumę punktów zdobytych przez gospodarzy i sumę punktów zdobytych przez gości, dla meczów, które skończyły się po 5 setach i zwycięzca ostatniego seta zdobył w nim ponad 15 punktów,
 
+SELECT 
+	idmeczu,
+	COALESCE(gospodarze[1], 0) 
+	+ COALESCE(gospodarze[2], 0)
+	+ COALESCE(gospodarze[3], 0)
+	+ COALESCE(gospodarze[4], 0)
+	+ COALESCE(gospodarze[5], 0) AS gospodarze,
+	COALESCE(goscie[1], 0) 
+	+ COALESCE(goscie[2], 0)
+	+ COALESCE(goscie[3], 0)
+	+ COALESCE(goscie[4], 0)
+	+ COALESCE(goscie[5], 0) AS goscie
+FROM siatkowka.statystyki
+WHERE 
+	goscie[5] IS NOT NULL 
+	AND
+	(gospodarze[5] > 15 OR goscie[5] > 15)
 
+--OR
+
+SELECT 
+	idmeczu,
+	(SELECT SUM(s) FROM UNNEST(gospodarze) s) as gospodarze,
+	(SELECT SUM(s) FROM UNNEST(goscie) s) as goscie
+FROM 
+	siatkowka.statystyki
+WHERE
+	gospodarze[5] IS NOT NULL
+	AND
+	(gospodarze[5] > 15 OR goscie[5] > 15)
 
 -- 3. identyfikator i wynik meczu w formacie x:y, np. 3:1 (wynik jest pojedynczą kolumną – napisem),
+
+SELECT 
+	idmeczu,
+	CONCAT(CASE WHEN gospodarze[1] > goscie[1] THEN 1 ELSE 0 END 
+	+ CASE WHEN gospodarze[2] > goscie[2] THEN 1 ELSE 0 END
+	+ CASE WHEN gospodarze[3] > goscie[3] THEN 1 ELSE 0 END
+	+ CASE WHEN gospodarze[4] > goscie[4] THEN 1 ELSE 0 END
+	+ CASE WHEN gospodarze[5] > goscie[5] THEN 1 ELSE 0 END,
+	':',
+	CASE WHEN goscie[1] > gospodarze[1] THEN 1 ELSE 0 END
+	+ CASE WHEN goscie[2] > gospodarze[2] THEN 1 ELSE 0 END
+	+ CASE WHEN goscie[3] > gospodarze[3] THEN 1 ELSE 0 END
+	+ CASE WHEN goscie[4] > gospodarze[4] THEN 1 ELSE 0 END
+	+ CASE WHEN goscie[5] > gospodarze[5] THEN 1 ELSE 0 END) AS wynik
+FROM siatkowka.statystyki
+
 -- 4. ★ identyfikator meczu, sumę punktów zdobytych przez gospodarzy i sumę punktów zdobytych przez gości, dla meczów, w których gospodarze zdobyli ponad 100 punktów,
+
+SELECT 
+	idmeczu,
+	(SELECT SUM(s) FROM UNNEST(gospodarze) s) as gospodarze,
+	(SELECT SUM(s) FROM UNNEST(goscie) s) as goscie
+FROM siatkowka.statystyki
+WHERE
+	(SELECT SUM(s) FROM UNNEST(gospodarze) s) > 100
+
 -- 5. ★ identyfikator meczu, liczbę punktów zdobytych przez gospodarzy w pierwszym secie, sumę punktów zdobytych w meczu przez gospodarzy, dla meczów, w których pierwiastek kwadratowy z liczby punktów zdobytych przez gospodarzy w pierwszym secie jest mniejszy niż logarytm o podstawie 2 z sumy punktów zdobytych w meczu przez gospodarzy. ;)
+
+SELECT 
+	idmeczu,
+	gospodarze[1] as pierwszy_st,
+	(SELECT SUM(s) FROM UNNEST(gospodarze) s) as gospodarze
+	
+FROM siatkowka.statystyki
+	
+WHERE 
+	sqrt(gospodarze[1]) < LOG(2, (SELECT SUM(s) FROM UNNEST(gospodarze) s))
+
