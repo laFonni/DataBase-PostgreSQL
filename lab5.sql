@@ -96,3 +96,43 @@ FROM
 	INNER JOIN zawartosc z USING(idpudelka)
 	INNER JOIN czekoladki cz USING(idczekoladki)
 GROUP BY p.idpudelka
+
+/*Exercise 3*/
+
+-- 1. liczby zamówień na poszczególne dni,
+
+SELECT datarealizacji, COUNT(*) FROM zamowienia GROUP BY datarealizacji
+
+-- 2. łącznej liczby wszystkich zamówień,
+
+SELECT COUNT(*) FROM zamowienia 
+
+-- 3. ★ łącznej wartości wszystkich zamówień,
+
+SELECT SUM(a.sztuk * p.cena) 
+FROM
+	pudelka p
+	INNER JOIN artykuly a USING(idpudelka)
+	INNER JOIN zamowienia z USING(idzamowienia)
+	
+
+-- 4. ★ identyfikatorów klientów, liczby złożonych przez nich zamówień i łącznej wartości złożonych przez nich zamówień (uwaga: należy pokazać 0 przy klientach, którzy nie złożyli żadnych zamówień).
+
+SELECT
+	k.idklienta,
+	COALESCE(z.liczba_zam, 0) as liczba_zam,
+	COALESCE(s.laczna_war, 0) as laczna_war
+FROM 
+	klienci k
+	LEFT JOIN (
+		SELECT idklienta, COUNT(z.idzamowienia) as liczba_zam
+		FROM zamowienia z
+		GROUP BY idklienta
+	) z USING(idklienta)
+	LEFT JOIN (
+		SELECT z.idklienta, SUM(a.sztuk * p.cena) as laczna_war
+		FROM zamowienia z
+			INNER JOIN artykuly a USING(idzamowienia)
+			INNER JOIN pudelka p USING(idpudelka)
+		GROUP BY z.idklienta
+	) s USING(idklienta)
