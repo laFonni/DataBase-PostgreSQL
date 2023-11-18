@@ -136,3 +136,45 @@ FROM
 			INNER JOIN pudelka p USING(idpudelka)
 		GROUP BY z.idklienta
 	) s USING(idklienta)
+
+
+/*Exercise 4*/
+
+-- 1.identyfikatora czekoladki, która występuje w największej liczbie pudełek (przy użyciu LIMIT 1),
+
+SELECT cz.idczekoladki
+FROM 
+	czekoladki cz
+	INNER JOIN zawartosc z USING(idczekoladki)
+	INNER JOIN pudelka p USING(idpudelka)
+GROUP BY 
+	cz.idczekoladki
+ORDER BY 
+	COUNT(p.idpudelka) DESC
+LIMIT 1
+
+-- 2. identyfikatora pudełka, które zawiera najwięcej czekoladek bez orzechów (uwaga: jeśli kilka pudełek ma taką samą największą liczbę to należy pokazać wszystkie),
+
+WITH x AS(
+	SELECT pud.idpudelka, SUM(zaw.sztuk) as suma
+	FROM 
+		pudelka pud
+		INNER JOIN zawartosc zaw USING(idpudelka)
+		INNER JOIN czekoladki cze USING(idczekoladki)
+	WHERE cze.orzechy IS NULL
+	GROUP BY pud.idpudelka
+	)
+SELECT p.idpudelka
+	FROM 
+		pudelka p
+		INNER JOIN zawartosc z USING(idpudelka)
+		INNER JOIN czekoladki cz USING(idczekoladki)
+WHERE cz.orzechy IS NULL
+GROUP BY p.idpudelka
+HAVING SUM(z.sztuk) = (SELECT MAX(x.suma) FROM x)
+
+-- 3. ★ identyfikatora czekoladki, która występuje w najmniejszej liczbie pudełek (uwaga: jeśli kilka czekoladek ma taką samą najmniejszą liczbę to należy pokazać wszystkie) (uwaga: może istnieć czekoladka, która nie występuje w żadnym pudełku),
+
+
+
+-- 4. ★ identyfikatora pudełka, które jest najczęściej zamawiane przez klientów (przy użyciu LIMIT 1).
