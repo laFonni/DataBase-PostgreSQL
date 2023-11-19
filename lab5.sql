@@ -175,6 +175,144 @@ HAVING SUM(z.sztuk) = (SELECT MAX(x.suma) FROM x)
 
 -- 3. ★ identyfikatora czekoladki, która występuje w najmniejszej liczbie pudełek (uwaga: jeśli kilka czekoladek ma taką samą najmniejszą liczbę to należy pokazać wszystkie) (uwaga: może istnieć czekoladka, która nie występuje w żadnym pudełku),
 
+WITH xyz AS(
+	SELECT cz.idczekoladki, COUNT(z.idczekoladki) as suma
+	FROM
+		czekoladki cz
+		LEFT JOIN zawartosc z USING(idczekoladki)
+		
+	GROUP BY cz.idczekoladki
+	)
+SELECT cz.idczekoladki
+FROM
+	czekoladki cz
+	LEFT JOIN zawartosc z USING(idczekoladki)
+GROUP BY cz.idczekoladki
+HAVING COUNT(z.idpudelka) = (SELECT MIN(xyz.suma) FROM xyz)
 
 
 -- 4. ★ identyfikatora pudełka, które jest najczęściej zamawiane przez klientów (przy użyciu LIMIT 1).
+
+SELECT a.idpudelka
+FROM artykuly a
+GROUP BY a.idpudelka
+ORDER BY COUNT(*) DESC
+LIMIT 1
+
+
+/*Exercise 5*/
+
+-- 1. liczby zamówień na poszczególne kwartały,
+
+SELECT date_part('quarter', z.datarealizacji) as kwartal, COUNT(z.idzamowienia)
+FROM zamowienia z
+GROUP BY kwartal
+ORDER BY COUNT(z.idzamowienia)
+
+
+-- 2. liczby zamówień na poszczególne miesiące,
+
+SELECT date_part('month', z.datarealizacji) as kwartal, COUNT(z.idzamowienia)
+FROM zamowienia z
+GROUP BY kwartal
+ORDER BY COUNT(z.idzamowienia)
+
+-- 3. ★ liczby zamówień do realizacji w poszczególnych tygodniach,
+
+SELECT date_part('week', z.datarealizacji) as kwartal, COUNT(z.idzamowienia)
+FROM zamowienia z
+GROUP BY kwartal
+ORDER BY COUNT(z.idzamowienia)
+
+
+-- 4. ★ liczby zamówień do realizacji w poszczególnych miejscowościach.
+
+SELECT k.miejscowosc, COUNT(z.idzamowienia)
+FROM klienci k
+	LEFT JOIN zamowienia z USING(idklienta)
+GROUP BY k.miejscowosc
+ORDER BY COUNT(z.idzamowienia)
+
+/*Exercise 6*/
+
+-- 1. łącznej masy wszystkich pudełek czekoladek znajdujących się w cukierni,
+
+WITH xyz AS(
+	SELECT p.idpudelka, SUM(cz.masa * z.sztuk) suma
+	FROM 
+		pudelka p 
+		INNER JOIN zawartosc z USING(idpudelka)
+		INNER JOIN czekoladki cz USING(idczekoladki)
+	GROUP BY p.idpudelka
+	)
+SELECT SUM(xyz.suma)
+FROM xyz
+
+-- 2. ★ łącznej wartości wszystkich pudełek czekoladek znajdujących się w cukierni.
+
+SELECT SUM(p.cena)
+FROM pudelka p
+
+/*Exercise 7*/
+
+-- 1. zysk ze sprzedaży jednej sztuki poszczególnych pudełek (różnica między ceną pudełka i kosztem jego wytworzenia),
+
+SELECT p.idpudelka, p.cena - SUM(cz.koszt * z.sztuk)
+FROM
+	pudelka p 
+	INNER JOIN zawartosc z USING(idpudelka)
+	INNER JOIN czekoladki cz USING(idczekoladki)
+GROUP BY p.idpudelka
+
+-- 2. zysk ze sprzedaży zamówionych pudełek,
+
+WITH tablica_zamowien AS (
+	WITH tablica_zysku AS (
+	SELECT p.idpudelka, p.cena - SUM(cz.koszt * z.sztuk) as zysk_pudelka
+	FROM
+		pudelka p 
+		INNER JOIN zawartosc z USING(idpudelka)
+		INNER JOIN czekoladki cz USING(idczekoladki)
+	GROUP BY p.idpudelka
+	)
+	SELECT zam.idzamowienia, SUM(a.sztuk * tablica_zysku.zysk_pudelka) AS zysk
+	FROM 
+		zamowienia zam
+		INNER JOIN artykuly a USING(idzamowienia)
+		INNER JOIN tablica_zysku USING(idpudelka)
+	GROUP BY zam.idzamowienia
+	)
+SELECT SUM(tablica_zamowien.zysk)
+FROM 
+	tablica_zamowien
+
+-- 3. ★ zysk ze sprzedaży wszystkich pudełek czekoladek w cukierni.
+
+WITH tablica_zysku AS (
+	SELECT p.idpudelka, p.cena - SUM(z.sztuk * cz.koszt) as zysk
+	FROM
+		pudelka p
+		INNER JOIN zawartosc z USING(idpudelka)
+		INNER JOIN czekoladki cz USING(idczekoladki)
+	GROUP BY p.idpudelka
+	)
+
+
+SELECT SUM(tablica_zysku.zysk) 
+FROM tablica_zysku
+
+/*Exercise 8*/
+
+-- 1. Napisz zapytanie wyświetlające: liczbę porządkową i identyfikator pudełka czekoladek (idpudelka). Identyfikatory pudełek mają być posortowane alfabetycznie, rosnąco. Liczba porządkowa jest z przedziału 1..N, gdzie N jest ilością pudełek.
+
+SELECT
+	ROW_NUMBER() OVER (ORDER BY p.idpudelka ASC) AS lp, p.idpudelka
+FROM pudelka p
+ORDER BY p.idpudelka ASC
+
+--OR
+
+SELECT COUNT(p2.idpudelka) as lp, p1.idpudelka
+FROM pudelka p1 JOIN pudelka p2 ON p1.idpudelka >= p2.idpudelka
+GROUP BY p1.idpudelka
+ORDER BY p1.idpudelka ASC
