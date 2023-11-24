@@ -14,3 +14,21 @@ INSERT INTO
 	czekoladki (idczekoladki, nazwa, czekolada, orzechy, nadzienie, opis, koszt, masa) 
 VALUES 
 	('W98', 'Biały kieł', 'biała', 'laskowe', 'marcepan','Rozpływające się w rękach i kieszeniach', 0.45, 20)
+
+
+-- Napisz i wykonaj zapytanie, które doda do tabeli czekoladki następujące pozycje, wykorzystaj wartości NULL w poleceniu INSERT:
+-- IDCzekoladki: X91,
+-- Nazwa: Nieznana Nieznajoma,
+-- Opis: Niewidzialna czekoladka wspomagajaca odchudzanie.,
+-- Koszt: 26 gr,
+-- Masa: 0g,
+
+-- IDCzekoladki: M98,
+-- Nazwa: Mleczny Raj,
+-- Czekolada: Mleczna,
+-- Opis: Aksamitna mleczna czekolada w ksztalcie butelki z mlekiem.,
+-- Koszt: 26 gr,
+-- Masa: 36 g,
+
+INSERT INTO 
+	czekoladki ()
