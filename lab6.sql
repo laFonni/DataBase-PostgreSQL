@@ -32,3 +32,5 @@ VALUES
 
 INSERT INTO 
 	czekoladki ()
+
+/*Exercise 2*/
