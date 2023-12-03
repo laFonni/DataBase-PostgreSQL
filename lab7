@@ -1,0 +1,7 @@
+-- 3 Firma - kurs, projek badawczy, instruktorzy
+-- 3 kurs - firma, zespól szkoleniowy, sesja szkoleniowa
+-- 2 projek badawczy - firma, instruktorzy
+-- 3 instruktorzy - firma, zespoły szkoleniowe, projekty badawcze
+-- 2 zespoły szkoleniowe - kurs, instruktorzy
+-- 2 sesje szkoleniowe - kurs, uczestnicy 
+-- 1 uczestnicy - sesje szkoleniowe
