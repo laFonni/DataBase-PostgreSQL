@@ -1,3 +1,6 @@
+
+/* exercise 2 */
+
 -- 3 Firma - kurs, projek badawczy, instruktorzy
 -- 3 kurs - firma, zespól szkoleniowy, sesja szkoleniowa
 -- 2 projek badawczy - firma, instruktorzy
@@ -5,3 +8,20 @@
 -- 2 zespoły szkoleniowe - kurs, instruktorzy
 -- 2 sesje szkoleniowe - kurs, uczestnicy 
 -- 1 uczestnicy - sesje szkoleniowe
+
+/* exercise 3 */
+
+-- Każdy oddział zatrudnia co najmniej 3 pracowników w tym 1 kierownika. 
+-- Każdy pracownik jest zatrudniony w dokładnie jednym oddziale. 
+-- Wśród oddziałów wyróżnione są oddziały wojewódzkie, którym nadzorują pozostałe oddziały zlokalizowane na terenie danego województwa. 
+-- Oddziały wojewódzkie są niezależne (nie są nadzorowane). 
+-- Każdy oddział oferuje co najmniej jedną wycieczkę, przy czym ta sama wycieczka może być oferowana przez wiele oddziałów (co najmniej 1). 
+-- Każda wycieczka składa się z od 10 do 45 rezerwacji (miejsc w autokarze). 
+-- Klienci wykupują rezerwacje w wybranym oddziale.
+
+-- oddziały - pracownicy, oddziały wojewódzkie, wycieczki
+-- pracownicy - oddziały, 
+-- oddziały wojewódzkie- oddziały
+-- Wycieczki - oddziały, rezerwacje
+-- rezerwacje - wycieczki, klienic
+-- klienci - rezerwacje, oddziały
